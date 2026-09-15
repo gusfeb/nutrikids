@@ -1,3 +1,14 @@
+---
+title: NutriKids
+emoji: 🍱
+colorFrom: yellow
+colorTo: orange
+sdk: gradio
+sdk_version: 4.44.1
+app_file: app.py
+pinned: false
+---
+
 # 🍱 NutriKids
 
 **Sistem Klasifikasi Komponen Makanan Siswa Berbasis CNN (MobileNetV2)**

@@ -1,0 +1,5 @@
+tflite-runtime
+opencv-python-headless
+flask
+numpy
+pillow

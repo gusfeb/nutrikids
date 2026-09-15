@@ -21,6 +21,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'nutrikids-secret-key-2026-ganti-d
 # KONFIGURASI
 # ============================================================
 MODEL_PATH = 'model/nutrikids_final.h5'
+MODEL_TFLITE_PATH = 'model/nutrikids_final.tflite'
 THRESHOLD = 0.60
 LABELS = ['makanan_pokok', 'lauk_pauk', 'sayur', 'buah', 'susu']
 LABEL_DISPLAY = {
@@ -86,25 +87,49 @@ def init_db():
 
 
 # ============================================================
-# MUAT MODEL (dengan fallback ke mock predictor)
+# MUAT MODEL (dengan fallback: TFLite -> TensorFlow -> Mock)
 # ============================================================
 model = None
+tflite_interpreter = None
 USE_MOCK = True
+USE_TFLITE = False
 
+# Coba TFLite dulu (ringan, cocok untuk hosting gratis)
 try:
-    import tensorflow as tf
-    if os.path.exists(MODEL_PATH):
-        model = tf.keras.models.load_model(MODEL_PATH)
+    import tflite_runtime.interpreter as tflite
+    if os.path.exists(MODEL_TFLITE_PATH):
+        tflite_interpreter = tflite.Interpreter(model_path=MODEL_TFLITE_PATH)
+        tflite_interpreter.allocate_tensors()
+        USE_TFLITE = True
         USE_MOCK = False
-        print(f"[OK] Model dimuat dari {MODEL_PATH}")
+        print(f"[OK] Model TFLite dimuat dari {MODEL_TFLITE_PATH}")
     else:
-        print(f"[WARN] Model tidak ditemukan di {MODEL_PATH}")
-        print("       Menggunakan MOCK PREDICTOR untuk development.")
+        print(f"[WARN] Model TFLite tidak ditemukan di {MODEL_TFLITE_PATH}")
 except ImportError:
-    print("[WARN] TensorFlow tidak terinstall.")
-    print("       Menggunakan MOCK PREDICTOR untuk development.")
+    # Coba pakai tf.lite sebagai fallback
+    try:
+        import tensorflow as tf
+        if os.path.exists(MODEL_TFLITE_PATH):
+            tflite_interpreter = tf.lite.Interpreter(model_path=MODEL_TFLITE_PATH)
+            tflite_interpreter.allocate_tensors()
+            USE_TFLITE = True
+            USE_MOCK = False
+            print(f"[OK] Model TFLite dimuat via TensorFlow dari {MODEL_TFLITE_PATH}")
+        elif os.path.exists(MODEL_PATH):
+            model = tf.keras.models.load_model(MODEL_PATH)
+            USE_MOCK = False
+            print(f"[OK] Model H5 dimuat dari {MODEL_PATH}")
+        else:
+            print(f"[WARN] Model tidak ditemukan.")
+            print("       Menggunakan MOCK PREDICTOR untuk development.")
+    except ImportError:
+        print("[WARN] TFLite Runtime dan TensorFlow tidak terinstall.")
+        print("       Menggunakan MOCK PREDICTOR untuk development.")
+    except Exception as e:
+        print(f"[WARN] Error memuat model: {e}")
+        print("       Menggunakan MOCK PREDICTOR untuk development.")
 except Exception as e:
-    print(f"[WARN] Error memuat model: {e}")
+    print(f"[WARN] Error memuat model TFLite: {e}")
     print("       Menggunakan MOCK PREDICTOR untuk development.")
 
 
@@ -277,6 +302,13 @@ def predict():
     # Prediksi
     if USE_MOCK:
         prediksi = mock_predict()
+    elif USE_TFLITE:
+        img_array = preprocess_image(file)
+        input_details = tflite_interpreter.get_input_details()
+        output_details = tflite_interpreter.get_output_details()
+        tflite_interpreter.set_tensor(input_details[0]['index'], img_array)
+        tflite_interpreter.invoke()
+        prediksi = tflite_interpreter.get_tensor(output_details[0]['index'])[0]
     else:
         img_array = preprocess_image(file)
         prediksi = model.predict(img_array)[0]

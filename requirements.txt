@@ -1,0 +1,9 @@
+tensorflow>=2.15
+opencv-python
+flask
+mysql-connector-python
+pandas
+numpy
+scikit-learn
+matplotlib
+pillow

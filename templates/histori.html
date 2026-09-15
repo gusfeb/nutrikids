@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NutriKids — Riwayat konsumsi makanan siswa.">
+    <title>Histori — NutriKids</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="container">
+                <a href="{{ url_for('beranda') }}" class="navbar-brand">
+                    <span class="logo-icon">🍱</span> NutriKids
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="{{ url_for('beranda') }}" id="nav-beranda">🏠 Beranda</a></li>
+                    <li><a href="{{ url_for('cek_bekal_page') }}" id="nav-cek">📸 Cek Bekal</a></li>
+                    <li><a href="{{ url_for('histori') }}" class="active" id="nav-histori">📊 Histori</a></li>
+                </ul>
+                <div class="navbar-user">
+                    👋 {{ session['nama'] }}
+                    <a href="{{ url_for('logout') }}" class="btn-ghost" style="font-size:0.8rem;">Keluar</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div style="margin-bottom: 24px;">
+                    <div class="section-badge">RIWAYAT KONSUMSI</div>
+                    <h1 class="section-title">Histori Bekalmu 📊</h1>
+                    <p class="section-subtitle">Lihat perkembangan gizi makananmu dari waktu ke waktu.</p>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs" id="filter-tabs">
+                    <a href="{{ url_for('histori', filter='harian') }}"
+                       class="filter-tab {% if filter_aktif == 'harian' %}active{% endif %}" id="filter-harian">
+                        Hari Ini
+                    </a>
+                    <a href="{{ url_for('histori', filter='mingguan') }}"
+                       class="filter-tab {% if filter_aktif == 'mingguan' %}active{% endif %}" id="filter-mingguan">
+                        Minggu Ini
+                    </a>
+                    <a href="{{ url_for('histori', filter='bulanan') }}"
+                       class="filter-tab {% if filter_aktif == 'bulanan' %}active{% endif %}" id="filter-bulanan">
+                        Bulan Ini
+                    </a>
+                </div>
+
+                {% if riwayat and riwayat|length > 0 %}
+                <!-- Chart -->
+                <div class="chart-container">
+                    <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 16px;">Rata-rata Komponen Gizi</h3>
+                    <canvas id="nutriChart" height="200"></canvas>
+                </div>
+
+                <!-- History Cards -->
+                {% for r in riwayat %}
+                <div class="history-card">
+                    {% if r.path_foto %}
+                    <img src="/{{ r.path_foto.replace('\\', '/') }}" alt="Foto bekal" class="history-thumb"
+                         onerror="this.style.display='none'">
+                    {% endif %}
+                    <div class="history-info">
+                        <div class="history-date">
+                            📅 {{ r.tanggal_waktu.strftime('%d %b %Y, %H:%M') if r.tanggal_waktu else '-' }}
+                        </div>
+                        <div class="history-komponen">
+                            <span class="komponen-badge {% if r.status_karbohidrat >= threshold %}ok{% else %}no{% endif %}">
+                                🍚 {% if r.status_karbohidrat >= threshold %}✓{% else %}✗{% endif %}
+                            </span>
+                            <span class="komponen-badge {% if r.status_protein >= threshold %}ok{% else %}no{% endif %}">
+                                🍗 {% if r.status_protein >= threshold %}✓{% else %}✗{% endif %}
+                            </span>
+                            <span class="komponen-badge {% if r.status_sayur >= threshold %}ok{% else %}no{% endif %}">
+                                🥬 {% if r.status_sayur >= threshold %}✓{% else %}✗{% endif %}
+                            </span>
+                            <span class="komponen-badge {% if r.status_buah >= threshold %}ok{% else %}no{% endif %}">
+                                🍎 {% if r.status_buah >= threshold %}✓{% else %}✗{% endif %}
+                            </span>
+                            <span class="komponen-badge {% if r.status_susu >= threshold %}ok{% else %}no{% endif %}">
+                                🥛 {% if r.status_susu >= threshold %}✓{% else %}✗{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <script>
+                // Chart.js — Rata-rata komponen gizi
+                const riwayatData = {{ riwayat | tojson }};
+                const threshold = {{ threshold }};
+
+                function avg(arr) { return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0; }
+
+                const avgData = [
+                    avg(riwayatData.map(r => r.status_karbohidrat)),
+                    avg(riwayatData.map(r => r.status_protein)),
+                    avg(riwayatData.map(r => r.status_sayur)),
+                    avg(riwayatData.map(r => r.status_buah)),
+                    avg(riwayatData.map(r => r.status_susu))
+                ];
+
+                const labels = ['Karbohidrat', 'Protein', 'Sayuran', 'Buah', 'Susu'];
+                const colors = ['#FF9800', '#EF5350', '#66BB6A', '#FFD54F', '#4FC3F7'];
+
+                new Chart(document.getElementById('nutriChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Rata-rata Skor',
+                            data: avgData.map(v => (v * 100).toFixed(1)),
+                            backgroundColor: colors.map(c => c + '33'),
+                            borderColor: colors,
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            annotation: {}
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { callback: v => v + '%' }
+                            }
+                        }
+                    }
+                });
+                </script>
+
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <h3>Belum ada riwayat</h3>
+                    <p>Mulai cek bekalmu untuk melihat riwayat di sini!</p>
+                    <a href="{{ url_for('cek_bekal_page') }}" class="btn btn-primary" style="margin-top: 16px;">
+                        📸 Cek Bekal Sekarang
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            NutriKids • Teman belajar gizi untuk anak Indonesia
+        </footer>
+    </div>
+</body>
+</html>

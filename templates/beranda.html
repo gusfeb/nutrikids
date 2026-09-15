@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NutriKids — Beranda siswa, ringkasan gizi mingguan.">
+    <title>Beranda — NutriKids</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="container">
+                <a href="{{ url_for('beranda') }}" class="navbar-brand">
+                    <span class="logo-icon">🍱</span> NutriKids
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="{{ url_for('beranda') }}" class="active" id="nav-beranda">🏠 Beranda</a></li>
+                    <li><a href="{{ url_for('cek_bekal_page') }}" id="nav-cek">📸 Cek Bekal</a></li>
+                    <li><a href="{{ url_for('histori') }}" id="nav-histori">📊 Histori</a></li>
+                </ul>
+                <div class="navbar-user">
+                    👋 {{ nama }}
+                    <a href="{{ url_for('logout') }}" class="btn-ghost" style="font-size:0.8rem;" id="logout-btn">Keluar</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <!-- Hero Section -->
+                <div class="hero">
+                    <div class="hero-text">
+                        <div class="hero-badge">🌿 Belajar gizi dengan seru</div>
+                        <h1>Yuk, kenali isi piringmu!</h1>
+                        <p>Foto makananmu, lalu temukan komponen baik yang membantu tubuhmu tumbuh kuat dan aktif.</p>
+                        <a href="{{ url_for('cek_bekal_page') }}" class="btn btn-primary btn-lg" id="mulai-deteksi-btn">
+                            Mulai deteksi 📸
+                        </a>
+                    </div>
+                    <div class="hero-upload-card">
+                        <div class="hero-upload-icon">📷</div>
+                        <h3>Foto makananmu</h3>
+                        <p>Unggah foto untuk mulai mencari karbohidrat, protein, vitamin, dan lainnya.</p>
+                        <a href="{{ url_for('cek_bekal_page') }}" class="btn btn-primary" id="unggah-foto-btn">
+                            📤 Unggah foto
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Nutrient Section -->
+                <div class="nutrient-section">
+                    <div class="section-badge">YANG BISA KAMU TEMUKAN</div>
+                    <h2 class="section-title">Setiap gigitan punya kekuatan!</h2>
+                    <p class="section-subtitle">Kenali lima teman sehat di dalam makanan sehari-hari.</p>
+
+                    <div class="nutrient-grid">
+                        <div class="nutrient-card">
+                            <div class="nutrient-icon karbo">🍚</div>
+                            <div>
+                                <h4>Karbohidrat</h4>
+                                <p>Tenaga untuk berlari, bermain, dan belajar.</p>
+                            </div>
+                        </div>
+                        <div class="nutrient-card">
+                            <div class="nutrient-icon protein">🍗</div>
+                            <div>
+                                <h4>Protein</h4>
+                                <p>Membantu tubuh tumbuh dan memperbaiki diri.</p>
+                            </div>
+                        </div>
+                        <div class="nutrient-card">
+                            <div class="nutrient-icon sayur">🥬</div>
+                            <div>
+                                <h4>Sayuran</h4>
+                                <p>Menjaga tubuh tetap segar dan kuat.</p>
+                            </div>
+                        </div>
+                        <div class="nutrient-card">
+                            <div class="nutrient-icon buah">🍎</div>
+                            <div>
+                                <h4>Buah-buahan</h4>
+                                <p>Vitamin alami untuk daya tahan tubuh.</p>
+                            </div>
+                        </div>
+                        <div class="nutrient-card">
+                            <div class="nutrient-icon susu">🥛</div>
+                            <div>
+                                <h4>Susu</h4>
+                                <p>Kalsium untuk tulang dan gigi yang kuat.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Steps Section -->
+                <div class="steps-row">
+                    <div class="step-card">
+                        <div class="step-icon step-1">📸</div>
+                        <h4>1. Foto</h4>
+                        <p>Ambil gambar makananmu.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon step-2">🔍</div>
+                        <h4>2. Temukan</h4>
+                        <p>Lihat komponen baik di dalamnya.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-icon step-3">❤️</div>
+                        <h4>3. Pahami</h4>
+                        <p>Pelajari manfaatnya untuk tubuhmu.</p>
+                    </div>
+                </div>
+
+                <!-- Footer Banner -->
+                <div class="footer-banner">
+                    <div>
+                        <h3>Belajar makan sehat, sedikit demi sedikit.</h3>
+                        <p>Ajak anak mengeksplorasi makanan dengan rasa ingin tahu, bukan takut.</p>
+                    </div>
+                    <div class="footer-brand">🍱 NutriKids</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Footer -->
+        <footer class="page-footer">
+            NutriKids • Teman belajar gizi untuk anak Indonesia
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NutriKids — Login atau daftar untuk cek komponen makanan bekal.">
+    <title>{{ 'Daftar' if show_register else 'Login' }} — NutriKids</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Tab Styles */
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 28px;
+            background: var(--bg-cream);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-body);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        .auth-tab:hover {
+            color: var(--text-navy);
+        }
+        .auth-tab.active {
+            background: var(--accent-coral);
+            color: var(--text-white);
+            box-shadow: 0 2px 8px rgba(255,107,53,0.3);
+        }
+
+        /* Success message */
+        .success-msg {
+            background: var(--accent-green-light);
+            color: var(--accent-green);
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        /* Form panel transitions */
+        .auth-panel {
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+        .auth-panel.active {
+            display: block;
+        }
+
+        .login-card .login-link {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--accent-coral);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .login-card .login-link:hover {
+            color: var(--accent-coral-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-logo">🍱</div>
+            <h1>NutriKids</h1>
+            <p class="login-subtitle">Yuk, kenali isi piringmu! Masuk atau daftar dulu ya.</p>
+
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab {{ '' if show_register else 'active' }}" id="tab-login" onclick="switchTab('login')">
+                    🔑 Masuk
+                </button>
+                <button class="auth-tab {{ 'active' if show_register else '' }}" id="tab-register" onclick="switchTab('register')">
+                    📝 Daftar Baru
+                </button>
+            </div>
+
+            {% if success %}
+            <div class="success-msg" id="success-msg">✅ {{ success }}</div>
+            {% endif %}
+
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+
+            <!-- Login Panel -->
+            <div class="auth-panel {{ '' if show_register else 'active' }}" id="panel-login">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="login-nama">Nama Panggilan</label>
+                        <input type="text" id="login-nama" name="nama" placeholder="Contoh: Yura" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-nis">Nomor Induk Siswa (NIS)</label>
+                        <input type="text" id="login-nis" name="nis" placeholder="Contoh: 1234" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-primary login-btn" id="login-btn">
+                        AYO MULAI! 🚀
+                    </button>
+                </form>
+                <span class="login-link" onclick="switchTab('register')">Belum punya akun? Daftar di sini →</span>
+            </div>
+
+            <!-- Register Panel -->
+            <div class="auth-panel {{ 'active' if show_register else '' }}" id="panel-register">
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="form-group">
+                        <label for="reg-nama">Nama Lengkap</label>
+                        <input type="text" id="reg-nama" name="nama" placeholder="Contoh: Yura Pratama" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-nis">Nomor Induk Siswa (NIS)</label>
+                        <input type="text" id="reg-nis" name="nis" placeholder="Contoh: 1236" required autocomplete="off"
+                               pattern="[0-9]+" title="NIS harus berupa angka">
+                    </div>
+                    <button type="submit" class="btn btn-primary login-btn" id="register-btn">
+                        DAFTAR SEKARANG! ✨
+                    </button>
+                </form>
+                <span class="login-link" onclick="switchTab('login')">Sudah punya akun? Masuk di sini →</span>
+            </div>
+
+            <p style="margin-top: 24px; font-size: 0.78rem; color: var(--text-light);">
+                NutriKids • Teman belajar gizi untuk anak Indonesia
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Toggle active tab
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+
+            // Toggle active panel
+            document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+            document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+
+            // Clear any messages
+            const successMsg = document.getElementById('success-msg');
+            if (successMsg) successMsg.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

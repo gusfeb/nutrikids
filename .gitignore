@@ -1,0 +1,27 @@
+# Virtual environments
+venv/
+venv311/
+.venv/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# Uploads (generated at runtime)
+static/uploads/
+
+# Dataset files (too large for GitHub)
+dataset/images/
+dataset/raw_images/
+
+# Model pycache
+model/__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# GradCAM outputs
+static/gradcam/
